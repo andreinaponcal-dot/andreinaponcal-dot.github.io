@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jardín de Versículos</title>
+<meta name="description" content="Aprende versículos de la Biblia jugando. Cada versículo que aprendes hace crecer una flor.">
+<meta name="theme-color" content="#BFE3F7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:400;font-display:swap;src:url('fredoka-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:500;font-display:swap;src:url('fredoka-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:600;font-display:swap;src:url('fredoka-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:700;font-display:swap;src:url('fredoka-latin-700-normal.woff2') format('woff2')}
+:root{
+  --sky:#BFE3F7; --sky2:#EAF6FD; --card:#FFFFFF; --ink:#3B2A5C; --ink-soft:#6B5C8A;
+  --line:#D9CFEA; --grass:#7CC98F; --grass-d:#4E9E63; --sun:#FFD45C; --berry:#FF7FA8;
+  --ok:#3F9B5A; --okbg:#DDF5E3; --warn:#E0607E;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --sky:#1B2647; --sky2:#243259; --card:#2D3C66; --ink:#F4EFFF; --ink-soft:#C6BCE2;
+    --line:#46578A; --grass:#5DAF74; --grass-d:#3E8A55; --okbg:#2E5A44; --ok:#9BE3B0;
+  }
+}
+:root[data-theme="dark"]{
+  --sky:#1B2647; --sky2:#243259; --card:#2D3C66; --ink:#F4EFFF; --ink-soft:#C6BCE2;
+  --line:#46578A; --grass:#5DAF74; --grass-d:#3E8A55; --okbg:#2E5A44; --ok:#9BE3B0;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0}
+body{
+  font-family:'Fredoka','Nunito','Trebuchet MS',system-ui,sans-serif;
+  color:var(--ink); background-color:var(--sky2);
+  background-image:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 55%);
+  background-attachment:fixed; min-height:100vh; font-size:17px; line-height:1.45;
+}
+main{max-width:640px;margin:0 auto;padding:20px 16px 56px}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid var(--berry);outline-offset:3px}
+
+/* Home */
+.hero{text-align:center;padding:8px 0 4px}
+h1{font-size:clamp(2.1rem,8vw,3rem);font-weight:700;line-height:1;margin:6px 0 8px;letter-spacing:-.5px}
+.hero p{margin:0;color:var(--ink-soft);font-size:1.1rem}
+.garden{
+  position:relative;margin:22px 0 8px;border-radius:32px;overflow-x:auto;
+  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));
+  padding:26px 10px 0;
+}
+.garden .sunny{position:absolute;top:10px;right:16px;width:46px;height:46px;border-radius:50%;
+  background:var(--sun);box-shadow:0 0 0 8px rgba(255,212,92,.35),0 0 0 18px rgba(255,212,92,.15)}
+.flowers{display:flex;align-items:flex-end;justify-content:space-around;gap:2px;min-width:max-content;position:relative;z-index:1}
+.gflower{background:none;border:0;padding:0 2px;border-radius:14px;line-height:0}
+.gflower:hover svg{transform:translateY(-3px)}
+.gflower svg{transition:transform .2s}
+.hill{height:34px;margin:-14px -10px 0;background:var(--grass);border-radius:50% 50% 0 0 / 100% 100% 0 0;position:relative}
+.count{text-align:center;margin:10px 0 26px;color:var(--ink-soft);font-weight:500}
+h2{font-size:1.45rem;margin:0 0 12px;font-weight:600}
+.list{display:grid;gap:10px}
+.vcard{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  background:var(--card);border:3px solid var(--line);border-bottom-width:6px;
+  border-radius:22px;padding:12px 14px;transition:transform .15s;
+}
+.vcard:hover{transform:translateY(-2px)}
+.vcard:active{transform:translateY(1px)}
+.vemoji{font-size:1.9rem;width:48px;height:48px;display:grid;place-items:center;border-radius:16px;flex:none}
+.vbody{flex:1;min-width:0;display:flex;flex-direction:column}
+.vbody strong{font-size:1.15rem;font-weight:600}
+.vbody span{color:var(--ink-soft);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dots{display:flex;gap:4px;flex:none}
+.dots i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--grass-d)}
+.foot{text-align:center;margin-top:8px;font-size:.9rem}
+.foot a{color:var(--ink-soft)}
+.reset{display:block;margin:30px auto 0;background:none;border:0;color:var(--ink-soft);text-decoration:underline;font-size:.95rem}
+
+/* Verse */
+.back{background:none;border:0;font-size:1.05rem;font-weight:600;color:var(--ink-soft);padding:6px 0;margin-bottom:6px}
+.vhead{display:flex;gap:12px;align-items:flex-end;margin-bottom:14px}
+.vhead .big{flex:none;line-height:0}
+.ref{font-size:1.5rem;font-weight:700;margin:0 0 6px}
+.vtext{
+  margin:0 0 22px;background:var(--card);border-radius:26px;padding:20px 22px;
+  font-size:1.35rem;font-weight:500;line-height:1.5;border:3px solid var(--line);position:relative;
+}
+.vtext::before{content:"“";position:absolute;top:-22px;left:14px;font-size:4rem;color:var(--berry);line-height:1}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.game{
+  background:var(--card);border:3px solid var(--line);border-bottom-width:6px;border-radius:24px;
+  padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;transition:transform .15s;
+}
+.game:hover{transform:translateY(-2px)}
+.game .gemoji{font-size:2.2rem}
+.game strong{font-size:1.2rem;font-weight:600}
+.game small{color:var(--ink-soft);font-size:.9rem;line-height:1.25}
+.game.done{border-color:var(--grass);background:var(--okbg)}
+.game.done small{color:var(--ok);font-weight:500}
+
+/* Games */
+.gtitle{font-size:1.7rem;font-weight:700;margin:4px 0 4px}
+.ginfo{color:var(--ink-soft);margin:0 0 18px;font-size:1.05rem}
+.panel{background:var(--card);border:3px solid var(--line);border-radius:26px;padding:18px;margin-bottom:18px;font-size:1.3rem;line-height:1.7;font-weight:500}
+.panel .w{display:inline-block;padding:0 3px;border-radius:8px;transition:background .2s}
+.panel .w.lit{background:var(--sun);color:#3B2A5C}
+.slot{min-height:120px;border:3px dashed var(--line);background:transparent}
+.slot .placed{display:inline-block;background:var(--okbg);color:var(--ok);border-radius:12px;padding:2px 8px;margin:3px 2px;font-weight:600}
+.slot .hint{color:var(--ink-soft);font-size:1rem}
+.pebbles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.pebble{
+  background:var(--card);border:3px solid var(--line);border-bottom-width:6px;border-radius:18px;
+  padding:10px 16px;font-size:1.15rem;font-weight:600;transition:transform .12s,opacity .2s;
+}
+.pebble:active{transform:translateY(2px)}
+.pebble.used{opacity:0;pointer-events:none}
+.pebble.wrong,.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.blank{display:inline-block;border-bottom:4px solid var(--line);min-width:3ch;margin:0 3px;color:transparent;border-radius:2px}
+.blank.current{border-color:var(--berry);background:rgba(255,127,168,.15)}
+.filled{color:var(--ok);font-weight:700}
+.hid{
+  display:inline-block;border:0;background:var(--line);color:transparent;border-radius:10px;
+  margin:2px;padding:0 6px;font:inherit;line-height:1.4;vertical-align:baseline;
+}
+.hid.peek{background:var(--sun);color:#3B2A5C}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{
+  border:0;border-radius:20px;padding:14px 22px;font-size:1.15rem;font-weight:600;
+  background:var(--berry);color:#fff;box-shadow:0 5px 0 #D45A84;transition:transform .12s;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #D45A84}
+.btn.soft{background:var(--card);color:var(--ink);border:3px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.msg{text-align:center;min-height:1.6em;font-weight:600;margin:12px 0 0;color:var(--warn)}
+.msg.good{color:var(--ok)}
+.round{display:inline-block;background:var(--sun);color:#3B2A5C;border-radius:999px;padding:2px 12px;font-weight:600;font-size:.95rem;margin-bottom:10px}
+
+/* Celebration */
+.overlay{position:fixed;inset:0;background:rgba(27,38,71,.55);display:grid;place-items:center;z-index:20;padding:20px}
+.cel{background:var(--card);border-radius:32px;padding:26px 22px;text-align:center;max-width:380px;width:100%;border:4px solid var(--sun)}
+.cel h3{font-size:1.9rem;margin:6px 0 4px}
+.cel p{margin:0 0 18px;color:var(--ink-soft);font-size:1.1rem}
+.cel .big{line-height:0;margin-bottom:6px}
+.grow{animation:grow .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes grow{from{transform:scale(.4)}to{transform:scale(1)}}
+.confetti{position:fixed;top:-20px;width:12px;height:16px;border-radius:4px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media (max-width:420px){
+  .vtext{font-size:1.2rem}
+  .panel{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const VERSES=[
+ {id:'gen1-1',ref:'Génesis 1:1',emoji:'🌍',color:'#FFB347',text:'En el principio creó Dios los cielos y la tierra.'},
+ {id:'sal23-1',ref:'Salmos 23:1',emoji:'🐑',color:'#8EC5FF',text:'Jehová es mi pastor; nada me faltará.'},
+ {id:'jn3-16',ref:'Juan 3:16',emoji:'❤️',color:'#FF7FA8',text:'Porque de tal manera amó Dios al mundo, que dio a su Hijo unigénito, para que todo aquel que en él cree no se pierda, sino que tenga vida eterna.'},
+ {id:'flp4-13',ref:'Filipenses 4:13',emoji:'💪',color:'#B79CFF',text:'Todo lo puedo en Cristo que me fortalece.'},
+ {id:'1jn4-19',ref:'1 Juan 4:19',emoji:'🤗',color:'#FF9E7A',text:'Nosotros lo amamos a él, porque él nos amó primero.'},
+ {id:'sal119-105',ref:'Salmos 119:105',emoji:'🪔',color:'#FFC94D',text:'Lámpara es a mis pies tu palabra, y lumbrera a mi camino.'},
+ {id:'sal56-3',ref:'Salmos 56:3',emoji:'🛡️',color:'#7FD6C2',text:'En el día que temo, yo en ti confío.'},
+ {id:'ef6-1',ref:'Efesios 6:1',emoji:'👨‍👩‍👧',color:'#9AD07F',text:'Hijos, obedezcan en el Señor a sus padres, porque esto es justo.'},
+ {id:'1jn4-8',ref:'1 Juan 4:8',emoji:'💛',color:'#F7A8D8',text:'El que no ama no conoce a Dios, porque Dios es amor.'},
+ {id:'jos1-9',ref:'Josué 1:9',emoji:'🦁',color:'#F5A35C',text:'Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo dondequiera que vayas.'}
+];
+const GAMES=[
+ {id:'listen',name:'Escuchar',emoji:'👂',hint:'Lee y escucha el versículo'},
+ {id:'order',name:'Ordenar',emoji:'🧩',hint:'Pon las palabras en su lugar'},
+ {id:'fill',name:'Completar',emoji:'✏️',hint:'Elige la palabra que falta'},
+ {id:'hide',name:'Esconder',emoji:'🙈',hint:'Dilo de memoria'}
+];
+const KEY='jardin-versiculos-v1';
+let progress={};
+try{progress=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){progress={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(progress))}catch(e){}}
+function doneCount(id){const p=progress[id]||{};return GAMES.filter(g=>p[g.id]).length}
+function isDone(id,g){return !!(progress[id]&&progress[id][g])}
+function markDone(id,g){progress[id]=progress[id]||{};const isNew=!progress[id][g];progress[id][g]=true;save();return isNew}
+const app=document.getElementById('app');
+const byId=id=>VERSES.find(v=>v.id===id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const parts=w=>{const m=w.match(/^(\P{L}*)(.*?)(\P{L}*)$/u);return {pre:m[1],core:m[2],post:m[3]}};
+const reduceMotion=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function flower(color,count,size){
+  const h=Math.round(size*1.4);
+  let s=`<svg viewBox="0 0 100 140" width="${size}" height="${h}" aria-hidden="true">`;
+  s+=`<path d="M50 140 C50 118 47 92 50 60" stroke="var(--grass-d)" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  s+=`<ellipse cx="38" cy="114" rx="13" ry="6" fill="var(--grass)" transform="rotate(-30 38 114)"/>`;
+  s+=`<ellipse cx="62" cy="100" rx="13" ry="6" fill="var(--grass)" transform="rotate(30 62 100)"/>`;
+  if(count===0){
+    s+=`<ellipse cx="50" cy="58" rx="8" ry="13" fill="var(--grass)"/>`;
+  }else{
+    for(let i=0;i<count*2;i++){s+=`<ellipse cx="50" cy="31" rx="11" ry="20" fill="${color}" transform="rotate(${i*45} 50 52)"/>`}
+    s+=`<circle cx="50" cy="52" r="12" fill="#FFD45C" stroke="#E8A93A" stroke-width="2"/>`;
+    if(count===4)s+=`<circle cx="46" cy="50" r="1.8" fill="#3B2A5C"/><circle cx="54" cy="50" r="1.8" fill="#3B2A5C"/><path d="M45 55 Q50 59 55 55" stroke="#3B2A5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  }
+  return s+'</svg>';
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window))return false;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='es-ES';u.rate=.85;u.pitch=1.1;
+  const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith('es'));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);return true;
+}
+let timers=[];
+function clearTimers(){timers.forEach(clearTimeout);timers=[];if('speechSynthesis' in window)speechSynthesis.cancel()}
+
+/* ---------- Home ---------- */
+function home(){
+  clearTimers();
+  const bloomed=VERSES.filter(v=>doneCount(v.id)===4).length;
+  app.innerHTML=`
+  <header class="hero">
+    <h1>Jardín de Versículos</h1>
+    <p>Cada versículo que aprendes hace crecer una flor.</p>
+  </header>
+  <section class="garden" aria-label="Tu jardín">
+    <div class="sunny"></div>
+    <div class="flowers">${VERSES.map(v=>`<button class="gflower" data-open="${v.id}" aria-label="${v.ref}">${flower(v.color,doneCount(v.id),42)}</button>`).join('')}</div>
+    <div class="hill"></div>
+  </section>
+  <p class="count">${bloomed===0?'Juega para que tu primera flor florezca':`${bloomed} de ${VERSES.length} flores completas 🌸`}</p>
+  <h2>Elige un versículo</h2>
+  <div class="list">${VERSES.map(v=>{
+    const d=doneCount(v.id);
+    return `<button class="vcard" data-open="${v.id}">
+      <span class="vemoji" style="background:${v.color}33">${v.emoji}</span>
+      <span class="vbody"><strong>${v.ref}</strong><span>${v.text}</span></span>
+      <span class="dots" aria-label="${d} de 4 juegos">${[0,1,2,3].map(i=>`<i class="${i<d?'on':''}"></i>`).join('')}</span>
+    </button>`}).join('')}</div>
+  <button class="reset" data-reset>Empezar el jardín de nuevo</button>
+  <p class="foot"><a href="privacidad.html">Política de privacidad</a></p>`;
+  window.scrollTo(0,0);
+}
+
+/* ---------- Verse ---------- */
+function verse(id){
+  clearTimers();
+  const v=byId(id),d=doneCount(id);
+  app.innerHTML=`
+  <button class="back" data-home>‹ Volver al jardín</button>
+  <div class="vhead">
+    <div class="big">${flower(v.color,d,70)}</div>
+    <div><p class="ref">${v.emoji} ${v.ref}</p>
+    <p style="margin:0 0 10px;color:var(--ink-soft)">${d===4?'¡Tu flor está completa! Puedes seguir practicando.':`Juega los 4 juegos para que tu flor florezca. Llevas ${d} de 4.`}</p></div>
+  </div>
+  <blockquote class="vtext">${v.text}</blockquote>
+  <div class="games">${GAMES.map(g=>{const ok=isDone(id,g.id);return `
+    <button class="game ${ok?'done':''}" data-game="${g.id}" data-v="${id}">
+      <span class="gemoji">${g.emoji}</span><strong>${g.name}</strong>
+      <small>${ok?'✓ ¡Hecho! Jugar otra vez':g.hint}</small>
+    </button>`}).join('')}</div>`;
+  window.scrollTo(0,0);
+}
+
+function gameShell(v,g,info){
+  return `<button class="back" data-open="${v.id}">‹ Volver a ${v.ref}</button>
+  <p class="gtitle">${g.emoji} ${g.name}</p><p class="ginfo">${info}</p><div id="stage"></div>`;
+}
+
+/* ---------- Game: Escuchar ---------- */
+function gListen(v){
+  const g=GAMES[0];
+  app.innerHTML=gameShell(v,g,'Escucha el versículo y léelo en voz alta mientras se iluminan las palabras.');
+  const words=v.text.split(' ');
+  const st=document.getElementById('stage');
+  const canSpeak='speechSynthesis' in window;
+  st.innerHTML=`<div class="panel" id="p">${words.map(w=>`<span class="w">${w}</span>`).join(' ')}</div>
+  <p class="ref" style="text-align:center;font-size:1.2rem">${v.ref}</p>
+  <div class="row">
+    <button class="btn soft" id="play">${canSpeak?'🔊 Escuchar y leer':'▶️ Leer juntos'}</button>
+    <button class="btn" id="ok">¡Ya lo leí!</button>
+  </div>`;
+  document.getElementById('play').onclick=()=>{
+    clearTimers();
+    const spans=[...st.querySelectorAll('.w')];
+    spans.forEach(s=>s.classList.remove('lit'));
+    speak(v.text+'. '+v.ref);
+    let t=300;
+    spans.forEach((s,i)=>{
+      const dur=260+parts(words[i]).core.length*55;
+      timers.push(setTimeout(()=>{spans.forEach(x=>x.classList.remove('lit'));s.classList.add('lit')},t));
+      t+=dur;
+    });
+    timers.push(setTimeout(()=>spans.forEach(x=>x.classList.remove('lit')),t+200));
+  };
+  document.getElementById('ok').onclick=()=>celebrate(v,'listen');
+}
+
+/* ---------- Game: Ordenar ---------- */
+function gOrder(v){
+  const g=GAMES[1];
+  app.innerHTML=gameShell(v,g,'Toca las piedritas en el orden correcto para armar el versículo.');
+  const words=v.text.split(' ');
+  const size=Math.ceil(words.length/8);
+  const chunks=[];for(let i=0;i<words.length;i+=size)chunks.push(words.slice(i,i+size).join(' '));
+  let pool=chunks.map((t,i)=>({t,i}));
+  do{pool=shuffle(pool)}while(chunks.length>1&&pool.every((p,i)=>p.i===i));
+  let next=0;
+  const st=document.getElementById('stage');
+  st.innerHTML=`<div class="panel slot" id="slot"><span class="hint">Aquí se arma el versículo…</span></div>
+  <div class="pebbles" id="peb">${pool.map((p,k)=>`<button class="pebble" data-k="${k}">${p.t}</button>`).join('')}</div>
+  <p class="msg" id="msg"></p>`;
+  const slot=document.getElementById('slot'),msg=document.getElementById('msg');
+  st.querySelectorAll('.pebble').forEach(b=>b.onclick=()=>{
+    const p=pool[+b.dataset.k];
+    if(p.t===chunks[next]){
+      if(next===0)slot.innerHTML='';
+      slot.insertAdjacentHTML('beforeend',`<span class="placed">${p.t}</span> `);
+      b.classList.add('used');next++;msg.textContent='';
+      if(next===chunks.length){msg.className='msg good';msg.textContent='¡Perfecto! 🎉';timers.push(setTimeout(()=>celebrate(v,'order'),700))}
+    }else{
+      b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');
+      msg.className='msg';msg.textContent='Esa va después. ¡Intenta otra!';
+    }
+  });
+}
+
+/* ---------- Game: Completar ---------- */
+function gFill(v){
+  const g=GAMES[2];
+  app.innerHTML=gameShell(v,g,'Elige la palabra que falta. Al final, adivina dónde está el versículo.');
+  const words=v.text.split(' ');
+  const cands=words.map((w,i)=>({i,c:parts(w).core})).filter(o=>o.c.length>=4);
+  const n=Math.min(words.length<8?2:3,cands.length);
+  const blanks=shuffle(cands).slice(0,n).map(o=>o.i).sort((a,b)=>a-b);
+  const others=[...new Set(VERSES.filter(x=>x.id!==v.id).flatMap(x=>x.text.split(' ').map(w=>parts(w).core)).filter(c=>c.length>=4))];
+  let step=0;
+  const st=document.getElementById('stage');
+  function draw(){
+    const txt=words.map((w,i)=>{
+      const bi=blanks.indexOf(i);
+      if(bi===-1)return w;
+      const p=parts(w);
+      if(bi<step)return `${p.pre}<span class="filled">${p.core}</span>${p.post}`;
+      return `${p.pre}<span class="blank ${bi===step?'current':''}" style="min-width:${Math.max(3,p.core.length)}ch">${p.core}</span>${p.post}`;
+    }).join(' ');
+    let q,opts,correct;
+    if(step<blanks.length){
+      correct=parts(words[blanks[step]]).core;
+      const lc=correct.toLowerCase();
+      const ds=shuffle(others.filter(o=>o.toLowerCase()!==lc)).slice(0,2);
+      opts=shuffle([correct,...ds]);
+      q='¿Qué palabra va en el espacio rosado?';
+    }else{
+      correct=v.ref;
+      opts=shuffle([v.ref,...shuffle(VERSES.filter(x=>x.id!==v.id)).slice(0,2).map(x=>x.ref)]);
+      q='¿Dónde está este versículo en la Biblia?';
+    }
+    st.innerHTML=`<div class="panel">${txt}</div>
+    <p style="text-align:center;font-weight:600;font-size:1.15rem;margin:0 0 12px">${q}</p>
+    <div class="pebbles">${opts.map(o=>`<button class="pebble" data-o="${o}">${o}</button>`).join('')}</div>
+    <p class="msg" id="msg"></p>`;
+    const msg=document.getElementById('msg');
+    st.querySelectorAll('.pebble').forEach(b=>b.onclick=()=>{
+      if(b.dataset.o===correct){
+        step++;
+        if(step>blanks.length){msg.className='msg good';msg.textContent='¡Excelente! 🎉';st.querySelectorAll('.pebble').forEach(x=>x.disabled=true);timers.push(setTimeout(()=>celebrate(v,'fill'),700))}
+        else draw();
+      }else{
+        b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');
+        msg.className='msg';msg.textContent='Casi… ¡prueba otra!';
+      }
+    });
+  }
+  draw();
+}
+
+/* ---------- Game: Esconder ---------- */
+function gHide(v){
+  const g=GAMES[3];
+  app.innerHTML=gameShell(v,g,'Di el versículo en voz alta. En cada ronda se esconden más palabras. Si olvidas una, tócala para espiar.');
+  const words=v.text.split(' ');
+  const order=shuffle(words.map((_,i)=>i));
+  const levels=[.35,.7,1];
+  let round=0;
+  const st=document.getElementById('stage');
+  function draw(){
+    const k=Math.ceil(words.length*levels[round]);
+    const hidden=new Set(order.slice(0,k));
+    st.innerHTML=`<div style="text-align:center"><span class="round">Ronda ${round+1} de 3</span></div>
+    <div class="panel">${words.map((w,i)=>hidden.has(i)?`<button class="hid" aria-label="Espiar palabra">${w}</button>`:w).join(' ')}</div>
+    <p class="ref" style="text-align:center;font-size:1.2rem">${v.ref}</p>
+    <div class="row"><button class="btn" id="said">${round<2?'Lo dije en voz alta':'¡Lo dije sin mirar!'}</button></div>`;
+    st.querySelectorAll('.hid').forEach(b=>b.onclick=()=>{b.classList.add('peek');timers.push(setTimeout(()=>b.classList.remove('peek'),1500))});
+    document.getElementById('said').onclick=()=>{
+      if(round<2){round++;draw()}else celebrate(v,'hide');
+    };
+  }
+  draw();
+}
+
+/* ---------- Celebration ---------- */
+function confetti(){
+  if(reduceMotion)return;
+  const colors=['#FF7FA8','#FFD45C','#7CC98F','#8EC5FF','#B79CFF'];
+  for(let i=0;i<46;i++){
+    const c=document.createElement('span');c.className='confetti';
+    c.style.left=Math.random()*100+'vw';c.style.background=colors[i%colors.length];
+    c.style.animationDuration=(1.6+Math.random()*1.4)+'s';c.style.animationDelay=(Math.random()*.4)+'s';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),3500);
+  }
+}
+const CHEERS=['¡Muy bien!','¡Lo lograste!','¡Excelente!','¡Bravo!','¡Qué bien lo hiciste!'];
+function celebrate(v,gid){
+  clearTimers();
+  const isNew=markDone(v.id,gid);
+  const d=doneCount(v.id);
+  const full=d===4;
+  const ov=document.createElement('div');ov.className='overlay';
+  ov.innerHTML=`<div class="cel" role="dialog" aria-modal="true" aria-labelledby="celt">
+    <div class="big grow">${flower(v.color,d,90)}</div>
+    <h3 id="celt">${CHEERS[Math.floor(Math.random()*CHEERS.length)]}</h3>
+    <p>${full?(isNew?'¡Tu flor floreció completa! Ya sabes '+v.ref+'.':'Tu flor sigue hermosa. ¡Sigue practicando!'):(isNew?'Tu flor creció. '+(4-d===1?'Te falta 1 juego':'Te faltan '+(4-d)+' juegos')+' para que florezca.':'¡Buena práctica! Prueba otro juego.')}</p>
+    <div class="row">
+      <button class="btn" id="cont">${full?'Ver mi jardín':'Seguir jugando'}</button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  confetti();
+  const b=ov.querySelector('#cont');b.focus();
+  b.onclick=()=>{ov.remove();full?home():verse(v.id)};
+}
+
+/* ---------- Router ---------- */
+const RUN={listen:gListen,order:gOrder,fill:gFill,hide:gHide};
+app.addEventListener('click',e=>{
+  const t=e.target.closest('[data-open],[data-home],[data-game],[data-reset]');
+  if(!t)return;
+  if(t.hasAttribute('data-home'))home();
+  else if(t.hasAttribute('data-reset')){if(confirm('¿Borrar todo el progreso y empezar el jardín de nuevo?')){progress={};save();home()}}
+  else if(t.dataset.game)RUN[t.dataset.game](byId(t.dataset.v));
+  else if(t.dataset.open)verse(t.dataset.open);
+});
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{};
+home();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+</script>
+</body>
+</html>

@@ -210,14 +210,23 @@ function flower(color,count,size){
   return s+'</svg>';
 }
 
-function speak(text){
-  if(!('speechSynthesis' in window))return false;
-  speechSynthesis.cancel();
+function pickVoice(){
+  if(!('speechSynthesis' in window))return null;
+  const vs=speechSynthesis.getVoices().filter(x=>x.lang&&x.lang.toLowerCase().startsWith('es'));
+  return vs.find(x=>/419|US|MX|EC|CO|AR|CL|PE/i.test(x.lang))||vs[0]||null;
+}
+function makeUtterance(text){
   const u=new SpeechSynthesisUtterance(text);
-  u.lang='es-ES';u.rate=.85;u.pitch=1.1;
-  const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith('es'));
-  if(v)u.voice=v;
-  speechSynthesis.speak(u);return true;
+  u.lang='es-419';u.rate=.85;u.pitch=1.1;
+  const v=pickVoice();if(v){u.voice=v;u.lang=v.lang}
+  return u;
+}
+// "Juan 3:16" se lee como "Juan, capítulo 3, versículo 16" (si no, el lector dice "3:16 PM")
+function spokenRef(ref){
+  const m=ref.match(/^(?:(\d)\s+)?(.+?)\s+(\d+):(\d+)$/);
+  if(!m)return ref;
+  const ord={'1':'Primera de ','2':'Segunda de ','3':'Tercera de '};
+  return (m[1]?ord[m[1]]:'')+m[2]+', capítulo '+m[3]+', versículo '+m[4];
 }
 let timers=[];
 function clearTimers(){timers.forEach(clearTimeout);timers=[];if('speechSynthesis' in window)speechSynthesis.cancel()}
@@ -288,18 +297,40 @@ function gListen(v){
     <button class="btn soft" id="play">${canSpeak?'🔊 Escuchar y leer':'▶️ Leer juntos'}</button>
     <button class="btn" id="ok">¡Ya lo leí!</button>
   </div>`;
-  document.getElementById('play').onclick=()=>{
-    clearTimers();
-    const spans=[...st.querySelectorAll('.w')];
-    spans.forEach(s=>s.classList.remove('lit'));
-    speak(v.text+'. '+v.ref);
-    let t=300;
-    spans.forEach((s,i)=>{
-      const dur=260+parts(words[i]).core.length*55;
-      timers.push(setTimeout(()=>{spans.forEach(x=>x.classList.remove('lit'));s.classList.add('lit')},t));
-      t+=dur;
+  const spans=[...st.querySelectorAll('.w')];
+  const starts=[];let pos=0;words.forEach(w=>{starts.push(pos);pos+=w.length+1});
+  const unlit=()=>spans.forEach(x=>x.classList.remove('lit'));
+  const lit=i=>{unlit();if(spans[i])spans[i].classList.add('lit')};
+  const stopTimeouts=()=>{timers.forEach(clearTimeout);timers=[]};
+  // Plan B: si el teléfono no avisa qué palabra está leyendo, calculamos el ritmo
+  function paced(offset,rate){
+    stopTimeouts();
+    let t=0;
+    words.forEach((w,i)=>{
+      const at=t-offset;
+      if(at>=0)timers.push(setTimeout(()=>lit(i),at));
+      const core=parts(w).core.length,post=parts(w).post;
+      t+=(140+core*55)/rate+(/[.;:]/.test(post)?420:/,/.test(post)?260:0);
     });
-    timers.push(setTimeout(()=>spans.forEach(x=>x.classList.remove('lit')),t+200));
+    timers.push(setTimeout(unlit,t-offset+300));
+  }
+  document.getElementById('play').onclick=()=>{
+    clearTimers();unlit();
+    if(!canSpeak){paced(0,.85);return}
+    const u=makeUtterance(v.text+'. '+spokenRef(v.ref)+'.');
+    let exact=false;
+    // Plan A: el teléfono avisa cada palabra que lee, así el resaltado va exactamente al ritmo de la voz
+    u.onboundary=e=>{
+      if(e.name&&e.name!=='word')return;
+      if(!exact){exact=true;stopTimeouts()}
+      if(e.charIndex>=v.text.length){unlit();return}
+      let i=0;while(i+1<starts.length&&starts[i+1]<=e.charIndex)i++;
+      lit(i);
+    };
+    u.onstart=()=>{timers.push(setTimeout(()=>{if(!exact)paced(700,u.rate)},700))};
+    u.onend=()=>{stopTimeouts();unlit()};
+    u.onerror=()=>{stopTimeouts();unlit()};
+    speechSynthesis.speak(u);
   };
   document.getElementById('ok').onclick=()=>celebrate(v,'listen');
 }

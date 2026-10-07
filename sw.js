@@ -1,6 +1,6 @@
 // Jardín de Versículos: funciona sin conexión.
 // Cuando actualices la app, cambia este número de versión.
-const CACHE = 'jardin-v4';
+const CACHE = 'jardin-v5';
 const FILES = [
   './', './index.html', './privacidad.html', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png',

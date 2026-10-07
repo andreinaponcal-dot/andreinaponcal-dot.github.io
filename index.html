@@ -33,7 +33,8 @@
   --line:#46578A; --grass:#5DAF74; --grass-d:#3E8A55; --okbg:#2E5A44; --ok:#9BE3B0;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:hidden}
 html,body{margin:0}
 body{
   font-family:'Fredoka','Nunito','Trebuchet MS',system-ui,sans-serif;
@@ -41,7 +42,8 @@ body{
   background-image:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 55%);
   background-attachment:fixed; min-height:100vh; font-size:17px; line-height:1.45;
 }
-main{max-width:640px;margin:0 auto;padding:20px 16px 56px}
+main{max-width:640px;margin:0 auto;padding:20px 16px 56px;overflow-x:hidden}
+main>*{max-width:100%}
 button{font-family:inherit;color:inherit;cursor:pointer}
 button:focus-visible{outline:4px solid var(--berry);outline-offset:3px}
 
@@ -50,22 +52,23 @@ button:focus-visible{outline:4px solid var(--berry);outline-offset:3px}
 h1{font-size:clamp(2.1rem,8vw,3rem);font-weight:700;line-height:1;margin:6px 0 8px;letter-spacing:-.5px}
 .hero p{margin:0;color:var(--ink-soft);font-size:1.1rem}
 .garden{
-  position:relative;margin:22px 0 8px;border-radius:32px;overflow-x:auto;
+  position:relative;margin:22px 0 8px;max-width:100%;border-radius:32px;overflow:hidden;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));
   padding:26px 10px 0;
 }
 .garden .sunny{position:absolute;top:10px;right:16px;width:46px;height:46px;border-radius:50%;
   background:var(--sun);box-shadow:0 0 0 8px rgba(255,212,92,.35),0 0 0 18px rgba(255,212,92,.15)}
-.flowers{display:flex;align-items:flex-end;justify-content:space-around;gap:2px;min-width:max-content;position:relative;z-index:1}
-.gflower{background:none;border:0;padding:0 2px;border-radius:14px;line-height:0}
+.flowers{display:flex;align-items:flex-end;justify-content:space-around;gap:2px;position:relative;z-index:1}
+.gflower{background:none;border:0;padding:0 1px;border-radius:14px;line-height:0;flex:1 1 0;min-width:0;display:flex;justify-content:center}
+.gflower svg{width:100%;max-width:42px;height:auto}
 .gflower:hover svg{transform:translateY(-3px)}
 .gflower svg{transition:transform .2s}
 .hill{height:34px;margin:-14px -10px 0;background:var(--grass);border-radius:50% 50% 0 0 / 100% 100% 0 0;position:relative}
 .count{text-align:center;margin:10px 0 26px;color:var(--ink-soft);font-weight:500}
 h2{font-size:1.45rem;margin:0 0 12px;font-weight:600}
-.list{display:grid;gap:10px}
+.list{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .vcard{
-  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  display:flex;align-items:center;gap:14px;width:100%;min-width:0;max-width:100%;text-align:left;
   background:var(--card);border:3px solid var(--line);border-bottom-width:6px;
   border-radius:22px;padding:12px 14px;transition:transform .15s;
 }
@@ -74,7 +77,7 @@ h2{font-size:1.45rem;margin:0 0 12px;font-weight:600}
 .vemoji{font-size:1.9rem;width:48px;height:48px;display:grid;place-items:center;border-radius:16px;flex:none}
 .vbody{flex:1;min-width:0;display:flex;flex-direction:column}
 .vbody strong{font-size:1.15rem;font-weight:600}
-.vbody span{color:var(--ink-soft);font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vbody span{color:var(--ink-soft);font-size:.95rem;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
 .dots{display:flex;gap:4px;flex:none}
 .dots i{width:11px;height:11px;border-radius:50%;background:var(--line)}
 .dots i.on{background:var(--grass-d)}
@@ -92,7 +95,7 @@ h2{font-size:1.45rem;margin:0 0 12px;font-weight:600}
   font-size:1.35rem;font-weight:500;line-height:1.5;border:3px solid var(--line);position:relative;
 }
 .vtext::before{content:"“";position:absolute;top:-22px;left:14px;font-size:4rem;color:var(--berry);line-height:1}
-.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .game{
   background:var(--card);border:3px solid var(--line);border-bottom-width:6px;border-radius:24px;
   padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;transition:transform .15s;

@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "io.github.andreinaponcal_dot.twa",
-        "sha256_cert_fingerprints": ["FD:96:D0:B0:F0:42:25:66:29:B8:23:93:95:7A:E3:44:85:27:8F:C7:9A:D4:7C:41:EC:1E:DB:15:7C:51:AC:16"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.andreinaponcal_dot.twa",
+    "sha256_cert_fingerprints": [
+      "FD:96:D0:B0:F0:42:25:66:29:B8:23:93:95:7A:E3:44:85:27:8F:C7:9A:D4:7C:41:EC:1E:DB:15:7C:51:AC:16",
+      "23:F9:D2:70:49:23:7E:5A:6C:22:C0:9E:B2:29:8C:29:64:06:D9:78:63:A1:A4:E6:C7:D6:27:FB:DE:94:3F:8C"
+    ]
+  }
+}]
